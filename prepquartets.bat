@@ -1,0 +1,3 @@
+echo Prepping quartets files...
+
+python3 prepare.py --data-dir C:\Users\WorkStation\Documents\GitHub\a2s_project\quartets --out-dir C:\Users\WorkStation\Documents\GitHub\a2s_project\output_folder --num-workers 8 --min-duration-symbol 0.01161 --max-duration 30.0 --test-split 0.3 --id id1 --instruments cello,viola,violn,flt --tempo-scaling 0.06 --chunk-sizes 3,4,5,6 --labels-multi --train-stride 1

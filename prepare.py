@@ -8,6 +8,8 @@ import csv
 import json
 import pickle
 
+from time import sleep
+
 import numpy as np
 
 from pathlib import Path
@@ -146,10 +148,12 @@ def process_scores(scores, args, labels):
     samples = manager.list()
     q = mp.Queue(maxsize=args.num_workers)
     pool = mp.Pool(args.num_workers, initializer=process_sample, initargs=(q, samples, args, labels))
+
     for score in tqdm(scores, ascii=True):
         if score.is_symlink():
             continue
         q.put(score)
+    
     # stop workers
     for i in range(args.num_workers):
         q.put(None)

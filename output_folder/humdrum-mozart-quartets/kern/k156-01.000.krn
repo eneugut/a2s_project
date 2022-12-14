@@ -1,0 +1,21 @@
+**kern	**dynam	**kern	**dynam	**kern	**dynam	**kern	**dynam
+*Icello	*Icello	*Iviola	*Iviola	*Ivioln	*Ivioln	*Iflt	*Iflt
+*clefF4	*	*clefC3	*	*clefG2	*	*clefG2	*
+*k[f#]	*	*k[f#]	*	*k[f#]	*	*k[f#]	*
+*G:	*	*G:	*	*G:	*	*G:	*
+*M3/8	*	*M3/8	*	*M3/8	*	*M3/8	*
+*MM186	*	*MM186	*	*MM186	*	*MM186	*
+! Presto	!	! Presto	!	! Presto	!	! Presto	!
+4G	f	8r	.	8r	.	[4.dd	f
+.	.	8g	f	8b	f	.	.
+8r	.	8g	.	8b	.	.	.
+=2	=2	=2	=2	=2	=2	=2	=2
+4GG	.	8r	.	8r	.	8dd]	.
+.	.	8g	.	8dd	.	8bb	.
+8r	.	8d	.	8b	.	8gg	.
+=3	=3	=3	=3	=3	=3	=3	=3
+4AA	.	8r	.	8r	.	4.gg	.
+.	.	8d	.	8cc	.	.	.
+8r	.	8d	.	8cc	.	.	.
+=4	=4	=4	=4	=4	=4	=4	=4
+*-	*-	*-	*-	*-	*-	*-	*-

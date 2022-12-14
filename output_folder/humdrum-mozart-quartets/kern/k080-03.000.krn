@@ -1,0 +1,30 @@
+**kern	**dynam	**kern	**dynam	**kern	**dynam	**kern	**dynam
+*Icello	*Icello	*Iviola	*Iviola	*Ivioln	*Ivioln	*Iflt	*Iflt
+*clefF4	*	*clefC3	*	*clefG2	*	*clefG2	*
+*k[f#]	*	*k[f#]	*	*k[f#]	*	*k[f#]	*
+*G:	*	*G:	*	*G:	*	*G:	*
+*M3/4	*	*M3/4	*	*M3/4	*	*M3/4	*
+*MM112	*	*MM112	*	*MM112	*	*MM112	*
+4G	f	2.r	.	4g	f	2.dd	f
+4r	.	.	.	4b	.	.	.
+4r	.	.	.	4g	.	.	.
+=2	=2	=2	=2	=2	=2	=2	=2
+2.r	.	2.r	.	4f#	.	2.ccc	.
+.	.	.	.	4a	.	.	.
+.	.	.	.	4d	.	.	.
+=3	=3	=3	=3	=3	=3	=3	=3
+2.r	.	2r	.	4g	.	4bb	.
+!	!	!	!	!	!	! 8dddP/	!
+.	.	.	.	4e	.	4ccc	.
+!	!	!	!	!	!	! 8bbP/	!
+.	.	4e	f	4c	.	4aa	.
+=4	=4	=4	=4	=4	=4	=4	=4
+4D'	.	2B	.	2.d	.	2gg	.
+4D	.	.	.	.	.	.	.
+4C	.	4A	.	.	.	4ff#	.
+=5	=5	=5	=5	=5	=5	=5	=5
+4BB	.	4d	.	4g	.	4gg	.
+4AA	.	4f#	.	4a	.	4aa	.
+4GG	.	4g	.	4b	.	4bb	.
+=6	=6	=6	=6	=6	=6	=6	=6
+*-	*-	*-	*-	*-	*-	*-	*-
