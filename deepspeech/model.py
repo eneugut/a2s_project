@@ -72,6 +72,7 @@ class MaskConv(nn.Module):
 
 class InferenceBatchSoftmax(nn.Module):
     def forward(self, input_):
+        print("FORwARD PASS")
         if not self.training:
             return F.log_softmax(input_, dim=-1)
         else:
@@ -93,9 +94,10 @@ class BatchRNN(nn.Module):
         self.rnn.flatten_parameters()
 
     def forward(self, x, output_lengths):
+        print("FORWARD PASS")
         if self.batch_norm is not None:
             x = self.batch_norm(x)
-        x = nn.utils.rnn.pack_padded_sequence(x, output_lengths)
+        x = nn.utils.rnn.pack_padded_sequence(x, output_lengths.cpu())
         x, h = self.rnn(x)
         x, _ = nn.utils.rnn.pad_packed_sequence(x)
         if self.bidirectional:
@@ -132,6 +134,7 @@ class Lookahead(nn.Module):
 class DeepSpeech(nn.Module):
     def __init__(self, model_conf, audio_conf, labels):
         super(DeepSpeech, self).__init__()
+        print("Initializing DeepSpeech object")
 
         # model metadata needed for serialization/deserialization
         self.name = 'deepspeech'
@@ -230,12 +233,13 @@ class DeepSpeech(nn.Module):
         self.inference_softmax = InferenceBatchSoftmax()
 
     def forward(self, x, x_lengths):
+        print("MAIN FORWARD PASS")
         output_lengths = self.get_seq_lens(x_lengths)
 
         x = x.transpose(1,2).contiguous() # NxHxT
         x = x.unsqueeze(1) # Add channel dimension NxCxHxT
 
-        x, _ = self.conv(x, output_lengths)
+        x, _ = self.conv(x, output_lengths) # This is actually running the model 
 
         sizes = x.size()
         x = x.view(sizes[0], sizes[1] * sizes[2], sizes[3])  # Collapse feature dimension
@@ -258,6 +262,7 @@ class DeepSpeech(nn.Module):
         return x, output_lengths
 
     def get_seq_lens(self, input_length):
+        print("get_seq_lens function") # Determines the size of the output
         """
         Given a 1D Tensor or Variable containing integer sequence lengths, return a 1D tensor or variable
         containing the size sequences that will be output by the network.
@@ -267,11 +272,17 @@ class DeepSpeech(nn.Module):
         seq_len = input_length
         for m in self.conv.modules():
             if type(m) == nn.modules.conv.Conv2d:
+                print("In if statement")
                 seq_len = ((seq_len + 2 * m.padding[1] - m.dilation[1] * (m.kernel_size[1] - 1) - 1) / m.stride[1] + 1)
         return seq_len.int()
 
     def transcribe(self, inputs, input_sizes, beam_size=1):
-        logits, logit_sizes = self.forward(inputs, input_sizes)
+        print("Transcribe function ") # Used for validation
+
+        logits, logit_sizes = self.forward(inputs, input_sizes) # Runs forward pass of entire model 
+
+        #print(logits)
+        #print(logit_sizes)
 
         if beam_size > 1:
             raise NotImplementedError
@@ -282,6 +293,9 @@ class DeepSpeech(nn.Module):
 
         transcripts = []
         for i, sequence in enumerate(sequences):
+            print("i and sequence ")
+            print(i)
+            print(sequence)
             seq_len = logit_sizes[i]
             string = []
             for j in range(seq_len):

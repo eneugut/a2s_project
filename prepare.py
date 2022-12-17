@@ -16,7 +16,7 @@ from pathlib import Path
 from tqdm import tqdm
 from sklearn.model_selection import train_test_split
 
-from data.data_loader import load_audio
+from data_loader import load_audio
 from data.humdrum import Kern, Labels, LabelsMulti
 
 def parseList(string):

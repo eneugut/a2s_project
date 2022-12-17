@@ -16,7 +16,7 @@ from apex.parallel import DistributedDataParallel
 from apex import amp
 from tqdm import tqdm
 
-from data.data_loader import AudioDataLoader, SpectrogramDataset, BucketingSampler, DistributedBucketingSampler
+from data_loader import AudioDataLoader, SpectrogramDataset, BucketingSampler, DistributedBucketingSampler
 from utils import AverageMeter, LabelDecoder, calculate_wer, calculate_cer, calculate_ler, load_model, save_model
 
 parser = argparse.ArgumentParser(description='DeepSpeech training')
@@ -180,21 +180,34 @@ if __name__ == '__main__':
     train_losses = AverageMeter()
 
     for epoch in range(start_epoch, epochs):
-        model.train()
+        # model is an instance of a DeepSpeech object
+        model.train() # Sets DeepSpeech into training mode
         end = time.time()
         start_epoch_time = time.time()
         for i, (data) in enumerate(train_loader):
+            print("Step #: ")
+            print(i)
+
             inputs, targets, input_sizes, target_sizes, filenames = data
+
+            print("Input tensor shape: ")
+            print(inputs.size())
+            print("Output tensor shape: ")
+            print(targets.size())
+
             # measure data loading time
             data_time.update(time.time() - end)
 
             loss_value = 0
             try:
+                print("Beginning of forward pass")
+                # Criterion is a Loss object (see loss.py)
                 loss = criterion.calculate_loss(inputs, input_sizes, targets, target_sizes)
             except Exception as error:            
                 print(error)
                 print('Skipping grad update')
             else:
+                print("Else statement")
                 optimizer.zero_grad()
                 # compute gradient
                 with amp.scale_loss(loss, optimizer) as scaled_loss:
@@ -235,6 +248,10 @@ if __name__ == '__main__':
                 for i, target in enumerate(targets):
                     reference = label_decoder.decode(target[:target_sizes[i]].tolist())
                     transcript = label_decoder.decode(transcripts[i])
+                    print("Reference is: ")
+                    print(reference)
+                    #print("Transcript is: ")
+                    #print(transcript)
                     wer, trans_words, ref_words = calculate_wer(transcript, reference, '\t')
                     cer, trans_chars, ref_chars = calculate_cer(transcript, reference, '\t')
                     ler, trans_labels, ref_labels = calculate_ler(transcript, reference)

@@ -3,7 +3,7 @@ import argparse
 
 import torch
 
-from data.data_loader import SpectrogramParser
+from data_loader import SpectrogramParser
 from utils import load_model, LabelDecoder
 
 parser = argparse.ArgumentParser(description='DeepSpeech transcription')

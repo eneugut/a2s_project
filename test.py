@@ -5,7 +5,7 @@ import torch
 
 from tqdm import tqdm
 
-from data.data_loader import SpectrogramDataset, AudioDataLoader, BucketingSampler
+from data_loader import SpectrogramDataset, AudioDataLoader, BucketingSampler
 from utils import LabelDecoder, calculate_wer, calculate_cer, calculate_ler, load_model
 
 parser = argparse.ArgumentParser(description='DeepSpeech transcription')
