@@ -3,12 +3,10 @@ import pretty_midi
 import wave
 from pydub import AudioSegment
 import tar_utilities
-
-
-
+import random
 
 def find_actual_start_time(mid):
-    start_time = 100
+    start_time = 1e8
     for instrument in mid.instruments:
         for note in instrument.notes:
             if note.start < start_time:
@@ -16,106 +14,88 @@ def find_actual_start_time(mid):
 
     return(start_time)
 
-
-def extract_midi_segment(mid,start_sec,end_sec):
+def subset_midi_segment(file_name,actual_start,actual_end):
+    mid = pretty_midi.PrettyMIDI(file_name)
     # Adjust times based on actual time start of midi
-    start_time = find_actual_start_time(mid)
-    print(start_time)
-    start_sec = start_sec + start_time
-    end_sec = end_sec + start_time
+    adjustment = find_actual_start_time(mid)
+    start_adj = actual_start + adjustment
+    end_adj = actual_end + adjustment
+    final_start = 0
+    final_end = actual_end - actual_start
     new_mid = pretty_midi.PrettyMIDI() # Create new midi object
 
-    # Extract notes
+    # Extract notes, pitch bends, and control changes and add to new midi object
     for instrument in mid.instruments:
+        # Create new instrument to add to new midi object: 
         new_instrument = pretty_midi.Instrument(instrument.program, instrument.is_drum, pretty_midi.program_to_instrument_name(instrument.program))
         new_mid.instruments.append(new_instrument)
-        for i in range(len(instrument.notes)):
+
+        # Add notes 
+        for i in range(len(instrument.notes)): # For each note in the instrument... 
             note = instrument.notes[i]
-            if (note.start < start_sec and note.end < end_sec) or (note.start > end_sec):
-                pass
-            else: # Delete notes after end_sec
-                new_mid.instruments[-1].notes.append(note)
+
+            validity = (note.start < note.end and note.start < end_adj and note.end > start_adj)
+            within_range = (note.start >= start_adj) and (note.end <= end_adj) and validity
+            change_start = (note.start < start_adj) and (note.end <= end_adj) and validity
+            change_end = (note.start >= start_adj) and (note.end > end_adj) and validity
+
+            if within_range: # If it's within the range, 
+                new_note = pretty_midi.Note(note.velocity, note.pitch, note.start - start_adj, note.end - start_adj)
+                new_mid.instruments[-1].notes.append(new_note) # Add the note 
+
+            elif change_start: # If the note starts before the range, 
+                new_note = pretty_midi.Note(note.velocity, note.pitch, 0, note.end - start_adj) # Update start time
+                new_mid.instruments[-1].notes.append(new_note) # Add the note 
+
+            elif change_end: # If the note ends after the range, 
+                new_note = pretty_midi.Note(note.velocity, note.pitch, note.start - start_adj, final_end) # Update start time
+                new_mid.instruments[-1].notes.append(new_note) # Add the note 
+
+        # Add pitch_bends
+        for i in range(len(instrument.pitch_bends)): # For each note in the instrument... 
+            pitch_bend = instrument.pitch_bends[i]
+            if (pitch_bend.time > start_adj) and (pitch_bend.time < end_adj): # If it's within the range, 
+                new_pitch_bend = pretty_midi.PitchBend(pitch_bend.pitch,pitch_bend.time - start_adj)
+                new_mid.instruments[-1].pitch_bends.append(new_pitch_bend) # Add to our new midi 
+
+        # Add control_changes
+        for i in range(len(instrument.control_changes)): # For each note in the instrument... 
+            control_change = instrument.control_changes[i]
+            if (control_change.time > start_adj) and (control_change.time < end_adj): # If it's within the range, 
+                new_control_change = pretty_midi.ControlChange(control_change.number,control_change.value,control_change.time - start_adj)
+                new_mid.instruments[-1].control_changes.append(new_control_change) # Add to our new midi 
+
+    # Extract time signature changes
+    for time_sig in mid.time_signature_changes:
+        if len(new_mid.time_signature_changes) < 1: # If this is the first time sig, add it
+            new_time_sig = pretty_midi.TimeSignature(time_sig.numerator,time_sig.denominator,0) # Fix the start time if needed 
+            new_mid.time_signature_changes.append(new_time_sig)
+
+        elif time_sig.time <= start_adj: # If this is not the first, and we are still before the start time
+            new_mid.time_signature_changes.pop() # Remove last item 
+            new_time_sig = pretty_midi.TimeSignature(time_sig.numerator,time_sig.denominator,0) # Fix the start time if needed 
+            new_mid.time_signature_changes.append(new_time_sig)
+
+        elif time_sig.time < end_adj:
+            new_time_sig = pretty_midi.TimeSignature(time_sig.numerator,time_sig.denominator,time_sig.time - start_adj) 
+            new_mid.time_signature_changes.append(new_time_sig)
+
+    # Extract key signature changes
+    for key_sig in mid.key_signature_changes:
+        if len(new_mid.key_signature_changes) < 1: # If this is the first key sig, add it
+            new_key_sig = pretty_midi.KeySignature(key_sig.key_number,0) # Fix the start key if needed 
+            new_mid.key_signature_changes.append(new_key_sig)
+
+        elif key_sig.time <= start_adj: # If this is not the first, and we are still before the start key
+            new_mid.key_signature_changes.pop() # Remove last item 
+            new_key_sig = pretty_midi.KeySignature(key_sig.key_number,0) # Fix the start key if needed 
+            new_mid.key_signature_changes.append(new_key_sig)
+
+        elif key_sig.time < end_adj:
+            new_key_sig = pretty_midi.KeySignature(key_sig.key_number,key_sig.time - start_adj) 
+            new_mid.key_signature_changes.append(new_key_sig)
 
     return new_mid
 
-tar_utilities.extract_tar_file("slakh2100_flac_redux/train/Track00052/all_src.mid")
-file_name = "C:\\Users\\WorkStation\\Documents\\GitHub\\a2s_project\\slakh2100_flac_redux\\train\\Track00052\\all_src.mid"
-
-#midi_data = pretty_midi.PrettyMIDI()
-midi_data = pretty_midi.PrettyMIDI(file_name)
-print(midi_data)
-audio = wave.open(r"C:\\Users\\WorkStation\\Documents\\GitHub\\a2s_project\\slakh-data\\babyslakh_16k\\Track00001\\mix.wav", 'r')
-
-mid2 = extract_midi_segment(midi_data,100,110)
-print(midi_data.get_end_time())
-print(mid2.get_end_time())
-print(find_actual_start_time(midi_data))
-print(find_actual_start_time(mid2))
-
-
-"""
-
-frames = audio.getnframes()
-rate = audio.getframerate()
-duration = frames / float(rate)
-print(duration)
-
-for i in range(20):
-    frame = audio.readframes(1)
-    #print(frame)
-
-
-silent_frames = []
-
-for i in reversed(range(audio.getnframes())):
-    ### read 1 frame and the position will updated ###
-    frame = audio.readframes(1)
-
-    all_zero = True
-    for j in range(len(frame)):
-        #print(frame[j])
-        # check if amplitude is greater than 0
-        if frame[j] > 0:
-            all_zero = False
-            break
-
-    if all_zero:
-        silent_frames.append((audio.tell()/audio.getframerate()))
-        # perform your cut here
-        #print ('silence found at frame %s' % audio.tell())
-        #print ('silence found at second %s' % (audio.tell()/audio.getframerate()))
-
-silent_frames =  [round(x,2) for x in silent_frames] 
-
-print(sorted(set(silent_frames)))
-"""
-
-def detect_leading_silence(sound, silence_threshold=-50.0, chunk_size=10):
-    '''
-    sound is a pydub.AudioSegment
-    silence_threshold in dB
-    chunk_size in ms
-
-    iterate over chunks until you find the first one with sound
-    '''
-    trim_ms = 0 # ms
-
-    assert chunk_size > 0 # to avoid infinite loop
-    while sound[trim_ms:trim_ms+chunk_size].dBFS < silence_threshold and trim_ms < len(sound):
-        trim_ms += chunk_size
-
-    return trim_ms
-
-def trim_and_replace_audio(file_path):
-
-    sound = AudioSegment.from_file(file_path, format="wav")
-
-    start_trim = detect_leading_silence(sound)
-    end_trim = detect_leading_silence(sound.reverse())
-
-    duration = len(sound)    
-    trimmed_sound = sound[start_trim:duration-end_trim]
-
-    trimmed_sound.export(file_path, format="wav")
-
-#trim_and_replace_audio(r"C:\\Users\\WorkStation\\Documents\\GitHub\\a2s_project\\slakh-data\\babyslakh_16k\\Track00001\\mix.wav")
+def subset_audio_segment(file_name,actual_start,actual_end):
+    audio = wave.open(file_name, 'r')
