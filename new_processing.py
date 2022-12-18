@@ -4,6 +4,7 @@ import wave
 from pydub import AudioSegment
 import tar_utilities
 import random
+import re
 
 def find_actual_start_time(mid):
     start_time = 1e8
@@ -97,5 +98,13 @@ def subset_midi_segment(file_name,actual_start,actual_end):
 
     return new_mid
 
-def subset_audio_segment(file_name,actual_start,actual_end):
-    audio = wave.open(file_name, 'r')
+def subset_audio_segment(file_path,actual_start,actual_end):
+    # Convert secs to milsecs:
+    actual_start = actual_start * 1000
+    actual_end = actual_end * 1000
+
+    sound = AudioSegment.from_file(file_path, format="wav")
+    print(len(sound))
+    trimmed_sound = sound[actual_start:actual_end]
+    new_file_path = re.sub(r"\.wav",r"-001.wav", file_path)
+    trimmed_sound.export(new_file_path, format="wav")

@@ -10,6 +10,10 @@ shift 3
 python train.py --cuda --config-path configs/slakh.cfg --train-manifest train_slakh.csv --val-manifest val_slakh.csv --labels-path labels_slakh.json --num-workers 4 --model-path models/slakh.pth
 
 
+# baby slakh
+python train.py --cuda --config-path configs/slakh.cfg --train-manifest train_baby_slakh.csv --val-manifest validation_baby_slakh.csv --labels-path labels_slakh.json --num-workers 4 --model-path models/slakh.pth
+
+#regular slakh
 python train.py --config-path configs/slakh.cfg --train-manifest train_slakh.csv --val-manifest val_slakh.csv --labels-path labels_slakh.json --num-workers 4 --model-path models/slakh.pth
 
 
