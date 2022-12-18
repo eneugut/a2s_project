@@ -1,10 +1,9 @@
-import time
 import pretty_midi
-import wave
 from pydub import AudioSegment
-import tar_utilities
-import random
+import audio_data_processing
+import os
 import re
+import pickle
 
 def find_actual_start_time(mid):
     start_time = 1e8
@@ -16,7 +15,7 @@ def find_actual_start_time(mid):
     return(start_time)
 
 def subset_midi_segment(file_name,actual_start,actual_end):
-    mid = pretty_midi.PrettyMIDI(file_name)
+    mid = pretty_midi.PrettyMIDI(os.getcwd()+file_name)
     # Adjust times based on actual time start of midi
     adjustment = find_actual_start_time(mid)
     start_adj = actual_start + adjustment
@@ -101,10 +100,29 @@ def subset_midi_segment(file_name,actual_start,actual_end):
 def subset_audio_segment(file_path,actual_start,actual_end):
     # Convert secs to milsecs:
     actual_start = actual_start * 1000
-    actual_end = actual_end * 1000
+    actual_end = actual_end * 1000 - 1
 
-    sound = AudioSegment.from_file(file_path, format="wav")
-    print(len(sound))
+    # Read in audio and trim
+    sound = AudioSegment.from_file(os.getcwd()+file_path, format="wav")
     trimmed_sound = sound[actual_start:actual_end]
-    new_file_path = re.sub(r"\.wav",r"-001.wav", file_path)
-    trimmed_sound.export(new_file_path, format="wav")
+    
+    new_file_path = re.sub(r"\.wav",r"_temp.wav", file_path)
+    
+    trimmed_sound.export(os.getcwd()+new_file_path, format="wav")
+    sound_tensor = audio_data_processing.process_audio_as_spect(new_file_path)
+    os.remove(os.getcwd()+new_file_path)
+
+    return(sound_tensor)
+
+def output_pickle(object, file_path):
+    with open(os.getcwd()+file_path, 'wb') as outp:
+        pickle.dump(object, outp, pickle.HIGHEST_PROTOCOL)
+
+def input_pickle(pkl_file_path):
+    with open(os.getcwd()+pkl_file_path, 'rb') as inp:
+        object = pickle.load(inp)
+    return object
+
+def wav_path_to_pkl_path(wav_path):
+    pickle_file_path = re.sub(r"\.wav",r".pkl", wav_path)
+    return pickle_file_path

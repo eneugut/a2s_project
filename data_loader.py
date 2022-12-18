@@ -18,14 +18,14 @@ import torchaudio
 import math
 from torch.utils.data import DataLoader
 from torch.utils.data import Dataset
-from new_labeling import *
+from new_labeling import Labeling
 
 from utils import pad_list, IGNORE_ID
 
 windows = {'hamming': np.hamming, 'hanning': np.hanning, 'blackman': np.blackman, 'bartlett': np.bartlett}
 
 def load_audio(path, normalize=True):
-    path = "C:/Users/WorkStation/Documents/GitHub/a2s_project" + path
+    path = os.getcwd() + path
     sound, _ = torchaudio.load(path) # , normalization=normalize
     sound = sound.numpy().T
     if len(sound.shape) > 1:
@@ -191,11 +191,11 @@ class SpectrogramDataset(Dataset, SpectrogramParser):
         return spect, transcript, transcript_path
 
     def parse_transcript(self, transcript_path):
-        transcript_path = "C:/Users/WorkStation/Documents/GitHub/a2s_project" + transcript_path
+        transcript_path = os.getcwd() + transcript_path
         with open(transcript_path, 'r') as transcript_file:
             transcript = transcript_file.read()
         transcript = np.array(list(transcript))
-        transcript = transcript[:30]
+        #transcript = transcript[:30] # Limit transcript size
         transcript = Labeling.encode(transcript)
         return transcript
 

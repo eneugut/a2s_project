@@ -45,4 +45,12 @@ print(mid2.time_signature_changes)
 
 #mid2.write("C:\\Users\\WorkStation\\Documents\\GitHub\\a2s_project\\slakh2100_flac_redux\\train\\Track01434\\all_src_extract2.mid")
 
-subset_audio_segment(wav_file_name,0,10)
+new_file_path = re.sub(r"\.wav",r"-001.wav", wav_file_name)
+
+
+#subset_audio_segment(wav_file_name, 0,10)
+#trimmed_sound.export(new_file_path, format="wav")
+from data_loader_test import parse_audio
+
+x = parse_audio("/slakh-data/babyslakh_16k/Track00001/mix.wav")
+print(x)

@@ -29,7 +29,7 @@ def extract_midi(file_name):
 def extract_wav(file_name):
     flac_file_name = re.sub(r"\.wav",r".flac", file_name)
     extract_tar_file(flac_file_name)
-    new_flac_file_name = "C:/Users/WorkStation/Documents/GitHub/a2s_project/slakh2100_flac_redux"+flac_file_name[20::]
+    new_flac_file_name = os.getcwd()+r"/slakh2100_flac_redux"+flac_file_name[20::]
     flac = AudioSegment.from_file(new_flac_file_name, 'flac')
     new_wav_file_name = re.sub(r"\.flac",r".wav",new_flac_file_name)
     flac.export(new_wav_file_name,format = "wav")
@@ -37,10 +37,10 @@ def extract_wav(file_name):
     trim_and_replace_audio(new_wav_file_name)
 
 def delete_extracted_tar_file(path_name):
+    print(path_name)
     try:
         folder_name, _ = os.path.split(path_name)
         os.remove(path_name)
-        os.rmdir(folder_name) 
     except:
         print("Error in deleting extracted tar file!") 
     
@@ -64,7 +64,7 @@ def create_manifest(match):
         i = i+1
 
     # Write matrix into csv 
-    with open(r"C:/Users/WorkStation/Documents/GitHub/a2s_project/"+match+r"_slakh.csv",mode='w+',newline='') as csvfile:
+    with open(os.getcwd()+match+r"_slakh.csv",mode='w+',newline='') as csvfile:
         w = csv.writer(csvfile,delimiter=",")
         w.writerows(matrix)        
 

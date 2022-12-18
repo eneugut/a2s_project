@@ -1,9 +1,11 @@
 import json
 import numpy as np
-from new_utils import *
+import torch
+
 
 with open('labels_slakh.json') as label_file:
     labels = json.load(label_file)
+
 
 char_to_index = { char: index for (index, char) in enumerate(sorted(list(labels))) }
 start_token = len(char_to_index)
