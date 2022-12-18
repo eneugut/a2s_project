@@ -152,6 +152,7 @@ class SpectrogramParser(AudioParser):
             std = spect.std()
             spect.add_(-mean)
             spect.div_(std)
+            #spect = spect[0:100,] # INSERTED THIS HERE TO CUT OFF THE SIZE OF THE AUDIO -- NEED TO FIX THIS LATER
 
         return spect
 

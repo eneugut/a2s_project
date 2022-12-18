@@ -63,12 +63,12 @@ def parse_audio(audio_path):
     window = np.hamming
     window_stride = 0.02322
     hop_length = int(sample_rate * window_stride)
+    print(n_fft/2)
 
     # Build spectrogram
     #if self.input_format == 'stft':
     fs = madmom.audio.signal.FramedSignal(y, sample_rate=sample_rate, frame_size=n_fft, hop_size=hop_length)
     print(type(fs))
-    print(fs.size)
     spect = madmom.audio.spectrogram.Spectrogram(fs, window=window)
     #elif self.input_format == 'cqt':
     #    S = librosa.cqt(y, sr=self.sample_rate, fmin=self.fmin, n_bins=self.num_octaves * self.bins_per_octave,
@@ -93,6 +93,7 @@ def parse_audio(audio_path):
     std = spect.std()
     spect.add_(-mean)
     spect.div_(std)
+    spect = spect[0:100,]
     print(spect.size())
 
     return spect
